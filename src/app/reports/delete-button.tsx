@@ -1,6 +1,5 @@
 "use client"
 
-import { Trash2 } from "lucide-react"
 import { deleteReport } from "./actions"
 
 interface DeleteButtonProps {
@@ -32,7 +31,7 @@ export default function DeleteButton({ reportId, jobTitle }: DeleteButtonProps) 
         className="rounded bg-red-600 p-1.5 text-white opacity-60 hover:bg-red-700 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-opacity"
         title={`Delete report for ${jobTitle}`}
       >
-        <Trash2 className="h-4 w-4" />
+        ×
       </button>
     </form>
   )

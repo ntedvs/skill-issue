@@ -7,7 +7,7 @@ import { redirect } from "next/navigation"
 import ResumeCard from "./resume-card"
 import ResumeUpload from "./resume-upload"
 
-export const metadata: Metadata = { title: "Profile" }
+export const metadata: Metadata = { title: "profile" }
 
 export default async function Profile() {
   const session = await auth()

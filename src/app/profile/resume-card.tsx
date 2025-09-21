@@ -76,8 +76,9 @@ export default function ResumeCard({ resume }: { resume: Resume }) {
       <p className="text-foreground/60 mb-2 text-sm">
         uploaded:{" "}
         {new Date(resume.uploadedAt)
-          .toLocaleDateString("en-US")
-          .replace(/\//g, "-")}
+          .toLocaleString("en-US")
+          .replace(/\//g, "-")
+          .replace(/,/g, "")}
       </p>
       <div className="text-sm">
         <span className="font-medium">skills: </span>

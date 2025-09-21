@@ -1,11 +1,11 @@
 import { Metadata } from "next"
 
-export const metadata: Metadata = { title: "Check Your Email" }
+export const metadata: Metadata = { title: "check your email" }
 
 export default function Verify() {
   return (
     <div className="mx-auto max-w-96 text-center">
-      <h1 className="text-3xl mb-8">Check Your Email</h1>
+      <h1 className="text-3xl mb-8">check your email</h1>
 
       <p className="mb-4">
         We&apos;ve sent you a magic link! Click the link in your email to sign in.

@@ -74,11 +74,7 @@ export default function AnalysisForm({ resumes }: AnalysisFormProps) {
           </option>
           {resumes.map((resume) => (
             <option key={resume.id} value={resume.id}>
-              {resume.filename} (uploaded{" "}
-              {new Date(resume.uploadedAt)
-                .toLocaleDateString("en-US")
-                .replace(/\//g, "-")}
-              )
+              {resume.filename}
             </option>
           ))}
         </select>

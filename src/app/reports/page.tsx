@@ -2,13 +2,12 @@ import { reportsTable } from "@/drizzle/schema"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/drizzle"
 import { desc, eq } from "drizzle-orm"
-import { Plus } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import DeleteButton from "./delete-button"
 
-export const metadata: Metadata = { title: "Your Reports" }
+export const metadata: Metadata = { title: "your reports" }
 
 export default async function Reports() {
   const session = await auth()
@@ -36,10 +35,9 @@ export default async function Reports() {
       <div className="mb-8 text-center">
         <Link
           href="/reports/new"
-          className="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
-          <Plus className="mr-2 h-4 w-4" />
-          analyze new job
+          + analyze new job
         </Link>
       </div>
 
@@ -63,7 +61,7 @@ export default async function Reports() {
 
                 <div className="mb-3">
                   <span className="text-sm font-medium">
-                    Screening Chance:{" "}
+                    screening chance:{" "}
                   </span>
                   <span className="rounded bg-blue-100 px-2 py-1 text-sm font-semibold text-blue-800">
                     {report.resumeScreeningChance}
@@ -72,17 +70,18 @@ export default async function Reports() {
 
                 <div className="mb-4">
                   <p className="text-foreground/60 text-sm">
-                    <span className="font-medium">Key weaknesses:</span>
+                    <span className="font-medium">key weaknesses:</span>
                   </p>
                   <p className="text-foreground/50 line-clamp-2 text-xs">
-                    {report.weaknessFactors || "None"}
+                    {report.weaknessFactors || "none"}
                   </p>
                 </div>
 
                 <div className="text-foreground/40 mt-auto text-xs">
                   {new Date(report.createdAt)
-                    .toLocaleDateString("en-US")
-                    .replace(/\//g, "-")}
+                    .toLocaleString("en-US")
+                    .replace(/\//g, "-")
+                    .replace(/,/g, "")}
                 </div>
               </Link>
               <DeleteButton reportId={report.id} jobTitle={report.jobTitle} />
@@ -93,18 +92,17 @@ export default async function Reports() {
         /* Empty State */
         <div className="border-foreground/30 rounded border-2 border-dashed p-12 text-center">
           <h3 className="text-foreground mb-2 text-lg font-medium">
-            No reports yet
+            no reports yet
           </h3>
           <p className="text-foreground/60 mb-4">
-            Get started by analyzing your first job posting to see how well your
+            get started by analyzing your first job posting to see how well your
             skills match!
           </p>
           <Link
             href="/reports/new"
-            className="inline-flex items-center rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Analyze Your First Job
+            + analyze your first job
           </Link>
         </div>
       )}

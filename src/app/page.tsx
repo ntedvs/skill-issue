@@ -41,7 +41,7 @@ export default function Home() {
           href="/profile"
           className="inline-flex items-center rounded-lg bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          Get Started - Upload Your Resume
+          get started - upload your resume
         </Link>
       </div>
     </div>

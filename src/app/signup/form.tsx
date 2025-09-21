@@ -9,7 +9,7 @@ export default function Form() {
 
   return (
     <form action={action} className="mx-auto flex max-w-96 flex-col">
-      <label htmlFor="email">Email</label>
+      <label htmlFor="email">email</label>
       <input
         id="email"
         name="email"
@@ -24,11 +24,11 @@ export default function Form() {
       )}
 
       <button type="submit" className="button">
-        Sign Up
+        sign up
       </button>
 
       <Link href="/login" className="mt-2 w-fit text-blue-600">
-        Already have an account?
+        already have an account?
       </Link>
     </form>
   )

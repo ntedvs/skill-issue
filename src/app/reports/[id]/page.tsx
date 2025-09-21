@@ -2,7 +2,6 @@ import { reportsTable, resumesTable } from "@/drizzle/schema"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/drizzle"
 import { and, eq } from "drizzle-orm"
-import { ArrowLeft, TrendingUp, TrendingDown, Lightbulb } from "lucide-react"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
@@ -41,9 +40,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-6">
-        <Link href="/reports" className="flex items-center text-blue-400 hover:underline">
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          Back to Reports
+        <Link href="/reports" className="text-blue-400 hover:underline">
+          ← back to reports
         </Link>
       </div>
 
@@ -54,14 +52,14 @@ export default async function ReportPage({ params }: ReportPageProps) {
 
         <div className="bg-mixed rounded-lg border p-8">
           <div className="mb-4">
-            <p className="text-lg text-foreground/70">Resume Screening Chance</p>
+            <p className="text-lg text-foreground/70">resume screening chance</p>
             <div className="text-6xl font-bold text-blue-400 mt-2">
               {report.resumeScreeningChance}
             </div>
           </div>
 
           <div className="text-sm text-foreground/50 space-y-1">
-            <p>analyzed on: {new Date(report.createdAt).toLocaleDateString('en-US').replace(/\//g, '-')}</p>
+            <p>analyzed on: {new Date(report.createdAt).toLocaleString('en-US').replace(/\//g, '-').replace(/,/g, '')}</p>
             <p>resume used: {resume?.filename}</p>
             <p>
               job source:
@@ -84,9 +82,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
 
       {/* What's Helping Section */}
       <div className="mb-8">
-        <h3 className="mb-4 flex items-center text-xl font-semibold text-green-400">
-          <TrendingUp className="mr-3 h-6 w-6" />
-          What&apos;s Helping Your Chances
+        <h3 className="mb-4 text-xl font-semibold text-green-400">
+          + what's helping your chances
         </h3>
         <div className="bg-mixed rounded-lg border border-green-400/20 p-6">
           <ul className="space-y-3">
@@ -102,9 +99,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
 
       {/* What's Hurting Section */}
       <div className="mb-8">
-        <h3 className="mb-4 flex items-center text-xl font-semibold text-red-400">
-          <TrendingDown className="mr-3 h-6 w-6" />
-          What&apos;s Hurting Your Chances
+        <h3 className="mb-4 text-xl font-semibold text-red-400">
+          - what's hurting your chances
         </h3>
         <div className="bg-mixed rounded-lg border border-red-400/20 p-6">
           <ul className="space-y-3">
@@ -120,9 +116,8 @@ export default async function ReportPage({ params }: ReportPageProps) {
 
       {/* Improvement Roadmap Section */}
       <div className="mb-8">
-        <h3 className="mb-4 flex items-center text-xl font-semibold text-blue-400">
-          <Lightbulb className="mr-3 h-6 w-6" />
-          Improvement Roadmap
+        <h3 className="mb-4 text-xl font-semibold text-blue-400">
+          → improvement roadmap
         </h3>
         <div className="bg-mixed rounded-lg border border-blue-400/20 p-6">
           <ul className="space-y-3">
@@ -142,7 +137,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
           href="/reports/new"
           className="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
         >
-          Analyze Another Job
+          analyze another job
         </Link>
       </div>
     </div>
