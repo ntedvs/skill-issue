@@ -11,7 +11,7 @@ export default function Verify() {
         We&apos;ve sent you a magic link! Click the link in your email to sign in.
       </p>
 
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-foreground/60">
         The link will expire in 24 hours. If you don&apos;t see the email, check your spam folder.
       </p>
     </div>

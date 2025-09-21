@@ -41,7 +41,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6">
         <Link href="/reports" className="text-blue-400 hover:underline">
-          ← back to reports
+          back to reports
         </Link>
       </div>
 
@@ -59,6 +59,17 @@ export default async function ReportPage({ params }: ReportPageProps) {
             </p>
             <div className="mt-2 text-6xl font-bold text-blue-400">
               {report.resumeScreeningChance}
+            </div>
+            <div className="mt-2 text-lg font-medium">
+              {(() => {
+                const percentage = parseInt(
+                  report.resumeScreeningChance.replace("%", ""),
+                )
+                if (percentage < 20) return "you're cooked"
+                if (percentage < 50) return "it's mid"
+                if (percentage < 80) return "you're fine shyt"
+                return "you're locked in"
+              })()}
             </div>
           </div>
 

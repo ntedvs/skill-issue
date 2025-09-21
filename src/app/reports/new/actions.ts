@@ -27,17 +27,17 @@ const Analysis = z.object({
   strengthFactors: z
     .string()
     .describe(
-      "8 specific skills/experiences helping screening chances as comma-separated list (e.g., 'React development experience, CS degree from top university, Previous startup experience, Strong GitHub portfolio')",
+      "8 specific skills/experiences helping screening chances as comma-separated list using casual college slang with sparse emojis (e.g., 'your TypeScript is goated, React skills are fire 🔥, GitHub portfolio slaps, that CS degree hits different 🙏')",
     ),
   weaknessFactors: z
     .string()
     .describe(
-      "8 missing skills/experiences hurting screening chances as comma-separated list (e.g., 'No Python experience, Lacks cloud infrastructure knowledge, Missing industry experience, No backend development')",
+      "8 missing skills/experiences hurting screening chances as comma-separated list using casual college tone with playful roasting for major gaps and sparse emojis (e.g., 'bro your Python is mid lil bro 💀, cloud knowledge kinda sus ngl, backend skills are lowkey trash 😭, React game is weak fr')",
     ),
   improvementRoadmap: z
     .string()
     .describe(
-      "8 roadmap steps for improving candidacy as comma-separated list (e.g., 'Complete AWS certification, Build portfolio with Python projects, Gain microservices experience, Practice system design interviews')",
+      "8 roadmap steps for improving candidacy as comma-separated list using encouraging college slang with sparse emojis (e.g., 'up that Python game bro 🙏, get some AWS certs fr, build more fire projects, grind those coding interviews 💀')",
     ),
 })
 
@@ -93,12 +93,12 @@ export const analyzeJob = async (state: unknown, fd: FormData) => {
   console.log("Content")
 
   const response = await openai.responses.parse({
-    model: "gpt-5",
+    model: process.env.NODE_ENV === "production" ? "gpt-5" : "gpt-5-mini",
     input: [
       {
         role: "system",
         content:
-          "Technical skills assessor for student career development. IGNORE: location, schedule, salary, work arrangements. FOCUS: technical skills, experience, education, certifications, programming languages, tools/frameworks. Provide 8 specific items per category as comma-separated values, no grouping.",
+          "Technical skills assessor for student career development. Use casual, fun language that college students relate to. IGNORE: location, schedule, salary, work arrangements. FOCUS: technical skills, experience, education, certifications, programming languages, tools/frameworks. Provide 8 specific items per category as comma-separated values, no grouping. Use slang and encouraging tone like 'goated', 'fire', 'bro', 'fr', 'ngl'.",
       },
       {
         role: "user",
@@ -113,7 +113,7 @@ export const analyzeJob = async (state: unknown, fd: FormData) => {
 
           Calculate percentage chance of passing technical screening based on skills alignment, experience, education, certifications, and technology proficiency. Provide exactly 8 comma-separated items per category.
 
-          IMPORTANT: Do not use commas, semicolons, parentheses, or lists within individual items. Each item must be a single simple phrase only.
+          IMPORTANT: Do not use commas, semicolons, parentheses, or lists within individual items. Each item must be a single simple phrase only. Use casual, fun language that college students relate to - think slang like 'goated', 'fire', 'bro', 'fr', 'ngl', 'lowkey', 'hits different', 'slaps'. Be encouraging but realistic. For major skill gaps, add playful roasting like 'bro your Python is mid lil bro' or 'React skills are kinda sus ngl'. Use emojis sparingly and naturally within phrases (like 🥀, 💀, 😭, 🙏) but not at the beginning of items.
         `,
       },
     ],
