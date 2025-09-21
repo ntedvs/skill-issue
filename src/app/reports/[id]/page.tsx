@@ -86,7 +86,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
       <div className="mb-8">
         <h3 className="mb-4 flex items-center text-xl font-semibold text-green-400">
           <TrendingUp className="mr-3 h-6 w-6" />
-          What's Helping Your Chances
+          What&apos;s Helping Your Chances
         </h3>
         <div className="bg-mixed rounded-lg border border-green-400/20 p-6">
           <ul className="space-y-3">
@@ -104,7 +104,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
       <div className="mb-8">
         <h3 className="mb-4 flex items-center text-xl font-semibold text-red-400">
           <TrendingDown className="mr-3 h-6 w-6" />
-          What's Hurting Your Chances
+          What&apos;s Hurting Your Chances
         </h3>
         <div className="bg-mixed rounded-lg border border-red-400/20 p-6">
           <ul className="space-y-3">

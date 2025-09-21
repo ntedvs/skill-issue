@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/drizzle"
 import { openai } from "@/lib/openai"
 import { pdf } from "@/utils/server"
+import { and, eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 
 export const uploadResume = async (formData: FormData) => {
@@ -50,4 +51,44 @@ export const uploadResume = async (formData: FormData) => {
   } catch (error) {
     console.error("Error processing resume:", error)
   }
+}
+
+export const renameResume = async (_state: unknown, formData: FormData) => {
+  const session = await auth()
+
+  if (!session?.user?.id) {
+    redirect("/login")
+  }
+
+  const resumeId = formData.get("resumeId") as string
+  const newFilename = (formData.get("filename") as string)?.trim()
+
+  if (!resumeId || !newFilename) {
+    return { error: "Resume ID and filename are required" }
+  }
+
+  if (newFilename.length === 0) {
+    return { error: "Filename cannot be empty" }
+  }
+
+  if (newFilename.length > 255) {
+    return { error: "Filename is too long" }
+  }
+
+  try {
+    await db
+      .update(resumesTable)
+      .set({ filename: newFilename })
+      .where(
+        and(
+          eq(resumesTable.id, resumeId),
+          eq(resumesTable.userId, session.user.id),
+        ),
+      )
+  } catch (error) {
+    console.error("Error renaming resume:", error)
+    return { error: "Failed to rename resume" }
+  }
+
+  redirect("/profile")
 }

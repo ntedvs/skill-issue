@@ -28,7 +28,7 @@ export default function Form() {
       </button>
 
       <Link href="/signup" className="mt-2 w-fit text-blue-600">
-        Don't have an account?
+        Don&apos;t have an account?
       </Link>
     </form>
   )

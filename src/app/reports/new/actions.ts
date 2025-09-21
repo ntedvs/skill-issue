@@ -9,7 +9,7 @@ import { redirect } from "next/navigation"
 import { zodTextFormat } from "openai/helpers/zod"
 import { z } from "zod"
 
-const JobAnalysis = z.object({
+const Analysis = z.object({
   jobTitle: z.string().describe("The job title extracted from the posting"),
   companyName: z
     .string()
@@ -36,40 +36,30 @@ const JobAnalysis = z.object({
     ),
 })
 
-export const analyzeJob = async (_state: unknown, fd: FormData) => {
+export const analyzeJob = async (state: unknown, fd: FormData) => {
   const session = await auth()
   if (!session) redirect("/login")
 
-  const url = (fd.get("jobUrl") as string).trim()
-  const resumeId = fd.get("resumeId") as string
-  if (!url || !resumeId) return { error: "Please fill in all fields", fd }
+  const {
+    jobUrl: url,
+    resumeId: id,
+    manualJobContent: manual,
+  } = Object.fromEntries(fd) as { [k: string]: string }
 
-  try {
-    console.log("Analyzing job:", url)
-    console.log("Using resume:", resumeId)
+  if (!url || !id) return { error: "Please fill in all fields", fd }
 
-    // Check if this is a manual content submission
-    const manualJobContent = fd.get("manualJobContent") as string
+  const resume = await db.query.resumesTable.findFirst({
+    where: eq(resumesTable.id, id),
+  })
 
-    // Get the selected resume
-    const resume = await db.query.resumesTable.findFirst({
-      where: eq(resumesTable.id, resumeId),
-    })
+  if (!resume) return { error: "Resume not found", fd }
 
-    if (!resume) {
-      return { error: "Resume not found", fd }
-    }
+  const trim = manual && manual.trim()
+  let content: string
 
-    let jobContent: string
-    let scrapingSucceeded: boolean
-
-    if (manualJobContent?.trim()) {
-      // User provided manual content
-      console.log("Using manual job content")
-      jobContent = manualJobContent.trim()
-      scrapingSucceeded = false
-    } else {
-      // Try automated scraping first
+  if (trim) content = trim
+  else {
+    try {
       const out = await fetch("https://api.zyte.com/v1/extract", {
         method: "POST",
         headers: {
@@ -79,41 +69,30 @@ export const analyzeJob = async (_state: unknown, fd: FormData) => {
         body: JSON.stringify({ url, jobPosting: true }),
       }).then((res) => res.json())
 
-      console.log(out)
-
-      // Check if scraping succeeded
-      if (!out || out.error || !out.jobPosting) {
-        console.log("Scraping failed, requesting manual input")
-        return {
-          scrapingFailed: true,
-          error:
-            "Unable to scrape job posting. Please paste the content manually below.",
-          fd,
-        }
+      if (!out || out.error || out.status === 421) {
+        return { scrapingFailed: true, fd }
       }
 
-      console.log("Scraping succeeded")
-      jobContent = JSON.stringify(out)
-      scrapingSucceeded = true
+      content = JSON.stringify(out)
+    } catch {
+      return { scrapingFailed: true, fd }
     }
+  }
 
-    console.log(jobContent)
-
-    // Use OpenAI to analyze job vs resume
-    const response = await openai.responses.parse({
-      model: "gpt-5",
-      input: [
-        {
-          role: "system",
-          content:
-            "You are a technical skills assessor evaluating resume-to-job compatibility based SOLELY on technical competencies and qualifications. You are NOT making hiring decisions - only assessing technical skills fit for student career development. COMPLETELY IGNORE: geographic location, schedule preferences, shift requirements, salary expectations, remote/in-person work arrangements, commute distance, visa status, availability for travel, office culture fit. FOCUS EXCLUSIVELY ON: technical skills alignment, relevant work experience, educational background, certifications, industry experience, programming languages, tools/frameworks, project portfolio, career progression in relevant technical areas. Assess if someone has the technical competencies for the role, regardless of logistical factors. Be realistic about technical skills gaps. IMPORTANT: Provide detailed, granular analysis with 8 specific items for each category. Return all lists as comma-separated values, NOT bullet points. Do not group items together or use parentheses.",
-        },
-        {
-          role: "user",
-          content: `Analyze this resume's TECHNICAL COMPATIBILITY with the job requirements. Focus ONLY on skills, experience, and qualifications - completely ignore location, schedule, salary, or work arrangement factors.
+  const response = await openai.responses.parse({
+    model: "gpt-5",
+    input: [
+      {
+        role: "system",
+        content:
+          "You are a technical skills assessor evaluating resume-to-job compatibility based SOLELY on technical competencies and qualifications. You are NOT making hiring decisions - only assessing technical skills fit for student career development. COMPLETELY IGNORE: geographic location, schedule preferences, shift requirements, salary expectations, remote/in-person work arrangements, commute distance, visa status, availability for travel, office culture fit. FOCUS EXCLUSIVELY ON: technical skills alignment, relevant work experience, educational background, certifications, industry experience, programming languages, tools/frameworks, project portfolio, career progression in relevant technical areas. Assess if someone has the technical competencies for the role, regardless of logistical factors. Be realistic about technical skills gaps. IMPORTANT: Provide detailed, granular analysis with 8 specific items for each category. Return all lists as comma-separated values, NOT bullet points. Do not group items together or use parentheses.",
+      },
+      {
+        role: "user",
+        content: `Analyze this resume's TECHNICAL COMPATIBILITY with the job requirements. Focus ONLY on skills, experience, and qualifications - completely ignore location, schedule, salary, or work arrangement factors.
 
           JOB POSTING:
-          ${jobContent}
+          ${content}
 
           USER'S RESUME:
           ${resume.extractedText}
@@ -128,46 +107,30 @@ export const analyzeJob = async (_state: unknown, fd: FormData) => {
           DO NOT CONSIDER: location requirements, schedule preferences, salary expectations, work arrangements, commute, visa status, or any logistical factors. This is purely a technical competency assessment for skills gap analysis.
 
           For all skill/experience lists, provide exactly 8 items each as comma-separated values. Be specific and granular - list individual skills, experiences, or qualifications separately rather than grouping them. Do not use parentheses or group multiple things into single items.`,
-        },
-      ],
-      text: {
-        format: zodTextFormat(JobAnalysis, "job_analysis"),
       },
+    ],
+    text: { format: zodTextFormat(Analysis, "analysis") },
+  })
+
+  const analysis = response.output_parsed
+  if (!analysis) return { error: "Failed to analyze job posting", fd }
+
+  const [report] = await db
+    .insert(reportsTable)
+    .values({
+      userId: session.user.id,
+      resumeId: id,
+      jobUrl: url,
+      jobContent: content,
+      scrapingSucceeded: !!trim,
+      jobTitle: analysis.jobTitle,
+      companyName: analysis.companyName,
+      resumeScreeningChance: analysis.resumeScreeningChance,
+      strengthFactors: analysis.strengthFactors,
+      weaknessFactors: analysis.weaknessFactors,
+      improvementRoadmap: analysis.improvementRoadmap,
     })
+    .returning()
 
-    const analysis = response.output_parsed
-
-    if (!analysis) {
-      return { error: "Failed to analyze job posting. Please try again.", fd }
-    }
-
-    // Save report to database
-    const [report] = await db
-      .insert(reportsTable)
-      .values({
-        userId: session.user.id,
-        resumeId,
-        jobUrl: url,
-        jobContent,
-        scrapingSucceeded,
-        jobTitle: analysis.jobTitle,
-        companyName: analysis.companyName,
-        resumeScreeningChance: analysis.resumeScreeningChance,
-        strengthFactors: analysis.strengthFactors,
-        weaknessFactors: analysis.weaknessFactors,
-        improvementRoadmap: analysis.improvementRoadmap,
-      })
-      .returning()
-
-    // Redirect to the new report
-    redirect(`/reports/${report.id}`)
-  } catch (error) {
-    console.error("Error analyzing job:", error)
-    return {
-      scrapingFailed: true,
-      error:
-        "Scraping failed. Please paste the job description manually below.",
-      fd,
-    }
-  }
+  redirect(`/reports/${report.id}`)
 }

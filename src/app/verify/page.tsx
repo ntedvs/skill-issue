@@ -8,11 +8,11 @@ export default function Verify() {
       <h1 className="text-3xl mb-8">Check Your Email</h1>
 
       <p className="mb-4">
-        We've sent you a magic link! Click the link in your email to sign in.
+        We&apos;ve sent you a magic link! Click the link in your email to sign in.
       </p>
 
       <p className="text-sm text-gray-600">
-        The link will expire in 24 hours. If you don't see the email, check your spam folder.
+        The link will expire in 24 hours. If you don&apos;t see the email, check your spam folder.
       </p>
     </div>
   )

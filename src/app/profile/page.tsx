@@ -4,6 +4,7 @@ import { db } from "@/lib/drizzle"
 import { desc, eq } from "drizzle-orm"
 import { Metadata } from "next"
 import { redirect } from "next/navigation"
+import ResumeCard from "./resume-card"
 import ResumeUpload from "./resume-upload"
 
 export const metadata: Metadata = { title: "Profile" }
@@ -25,7 +26,7 @@ export default async function Profile() {
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-8 mt-8 text-center text-6xl">profile</h1>
 
-      <p className="mb-6 text-center text-foreground/40">
+      <p className="text-foreground/40 mb-6 text-center">
         manage your resumes and account settings
       </p>
 
@@ -36,27 +37,14 @@ export default async function Profile() {
           <h2 className="mb-4 text-center text-xl font-medium">your resumes</h2>
           <div className="grid grid-cols-1 gap-4">
             {resumes.map((resume) => (
-              <div key={resume.id} className="bg-mixed rounded border p-4">
-                <h3 className="mb-2 font-medium">{resume.filename}</h3>
-                <p className="mb-2 text-sm text-foreground/60">
-                  uploaded: {new Date(resume.uploadedAt).toLocaleDateString('en-US').replace(/\//g, '-')}
-                </p>
-                <div className="text-sm">
-                  <span className="font-medium">skills: </span>
-                  <span className="text-foreground/70">
-                    {resume.skills.length > 100
-                      ? resume.skills.substring(0, 100) + "..."
-                      : resume.skills}
-                  </span>
-                </div>
-              </div>
+              <ResumeCard key={resume.id} resume={resume} />
             ))}
           </div>
         </div>
       )}
 
       <div className="mt-8 text-center">
-        <p className="mb-4 text-sm text-foreground/60">
+        <p className="text-foreground/60 mb-4 text-sm">
           signed in as: {session.user.email}
         </p>
         <form
