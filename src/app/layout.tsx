@@ -68,7 +68,18 @@ export default async function Layout({ children }: { children: ReactNode }) {
         <main className="mx-auto w-full max-w-6xl grow p-4">{children}</main>
 
         <footer className="text-foreground/60 mx-auto w-full max-w-6xl p-4 text-center">
-          <p>© {new Date().getFullYear()} skill-issue. all rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} skill-issue. all rights reserved.
+            {" | "}
+            <Link
+              href="https://github.com/ntedvs/skill-issue"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline"
+            >
+              github
+            </Link>
+          </p>
         </footer>
       </body>
     </html>
